@@ -1,0 +1,16 @@
+.imageContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.overlayComponent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50px;
+  height: 100px;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

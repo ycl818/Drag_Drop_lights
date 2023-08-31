@@ -1,0 +1,62 @@
+.customNodeBody {
+  width: 250px;
+  height: 200px;
+  /* border: 0.5px solid black !important; */
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px 5px 5px 5px ;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  background-color: transparent !important;
+  padding: 10px;
+}
+
+.customNode:before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  height: 50px;
+  width: 20px;
+  transform: translate(-50%, 0);
+  background: transparent !important;
+  z-index: 1000;
+  line-height: 1;
+  border-radius: 4px 4px 0px 0;
+  color: #fff;
+  font-size: 9px;
+ 
+}
+
+.customNode:hover:before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  height: 50px;
+  width: 270px;
+  transform: translate(-50%, 0);
+  background: #d6d5e6 !important;
+  z-index: 1000;
+  line-height: 1;
+  border-radius: 4px 4px 0px 0;
+  color: #fff;
+  font-size: 9px;
+}
+
+div.customHandle {
+  width: 100%;
+  height: 100%;
+  background: rgb(206, 206, 241);
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 0;
+  transform: none;
+  border: none;
+  opacity: 0;
+
+}
+
