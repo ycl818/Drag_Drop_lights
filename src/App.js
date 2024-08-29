@@ -793,7 +793,7 @@ const CustomNodeFlow = () => {
                                     />
                                     {nodeName}
                                     {nodeIndex < path.length - 1 && (
-                                      <span style={{ margin: "0 5px" }}>→</span> // 添加间距
+                                      <span style={{ margin: "0 5px" }}>→</span>
                                     )}
                                   </span>
                                 );

@@ -20,7 +20,6 @@ import { askChatGPT } from "../api/chatGPT";
 
 const actionMap = {
   add: "please elaborate this sentence: first you need to click the top right ADD button and drag the desire machine icon and drop it into the white board and then you can set the name of that machine",
-  添加: "请详细说明这个过程：首先,您需要点击右上角的添加按钮,然后拖动所需的机器图标并将其放置到白板上,之后您可以设置该机器的名称",
 };
 
 const AIAssistantDrawer = ({
