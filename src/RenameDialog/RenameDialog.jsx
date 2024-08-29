@@ -7,10 +7,15 @@ import {
   DialogContent,
   TextField,
   Autocomplete,
+  Box,
+  Typography,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 
 import CloseIcon from "@mui/icons-material/Close";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useStore } from "reactflow";
 
 const RenameDialog = ({
@@ -24,6 +29,7 @@ const RenameDialog = ({
 }) => {
   const nodesV = useStore((state) => state.getNodes());
   const [renameValue, setRenameValue] = useState("");
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const handleClose = () => {
     setOpenRename(false);
@@ -65,10 +71,29 @@ const RenameDialog = ({
     setCellName(e.target.textContent);
   };
 
+  const handleCopyId = async () => {
+    if (objectEdit?.id) {
+      try {
+        await navigator.clipboard.writeText(objectEdit.id);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000); // Reset after 2 seconds
+      } catch (err) {
+        console.error("Failed to copy text: ", err);
+      }
+    }
+  };
+
   return (
-    <Dialog open={openRename} onClose={handleClose} fullWidth>
-      <DialogTitle sx={{ display: "flex", justifyContent: "space-between" }}>
-        Rename this node{" "}
+    <Dialog open={openRename} onClose={handleClose} fullWidth maxWidth="sm">
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          borderBottom: "1px solid #e0e0e0",
+          pb: 2,
+        }}
+      >
+        Rename and View Node Details
         <CloseIcon
           onClick={handleClose}
           sx={{ "&:hover": { cursor: "pointer" } }}
@@ -76,37 +101,62 @@ const RenameDialog = ({
       </DialogTitle>
 
       <form onSubmit={handleSubmit}>
-        <DialogContent>
-          {/* <TextField
-            onChange={(e) => {
-              setRenameValue(e.target.value);
-            }}
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Enter name here"
-            type="text"
-            fullWidth
-            variant="standard"
-          /> */}
-          <Autocomplete
-            disableClearable
-            disablePortal
-            value={cellName}
-            onChange={onChange}
-            options={options}
-            sx={{ width: 300, height: 220, marginY: "0.5rem" }}
-            renderInput={(params) => (
-              <TextField {...params} label={`Cell Name`} />
-            )}
-          />
+        <DialogContent sx={{ pt: 3 }}>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Node Details
+            </Typography>
+            <Box
+              sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}
+            >
+              <DialogContentText sx={{ display: "flex", alignItems: "center" }}>
+                <strong>Node ID:</strong> {objectEdit?.id}
+                <Tooltip title={copySuccess ? "Copied!" : "Copy ID"}>
+                  <IconButton
+                    onClick={handleCopyId}
+                    size="small"
+                    sx={{ ml: 1 }}
+                  >
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </DialogContentText>
+              <DialogContentText>
+                <strong>Current Name:</strong> {objectEdit?.data?.name}
+              </DialogContentText>
+              <DialogContentText>
+                <strong>Type:</strong> {objectEdit?.type}
+              </DialogContentText>
+              <DialogContentText>
+                <strong>Position:</strong> X: {objectEdit?.position?.x}, Y:{" "}
+                {objectEdit?.position?.y}
+              </DialogContentText>
+            </Box>
+          </Box>
+
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Rename Node
+            </Typography>
+            <Autocomplete
+              disableClearable
+              disablePortal
+              value={cellName}
+              onChange={onChange}
+              options={options}
+              sx={{ width: "100%", mt: 1 }}
+              renderInput={(params) => (
+                <TextField {...params} label="Cell Name" fullWidth />
+              )}
+            />
+          </Box>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ borderTop: "1px solid #e0e0e0", p: 2 }}>
           <Button variant="outlined" onClick={handleClose}>
             Cancel
           </Button>
           <Button
-            style={{
+            sx={{
               backgroundColor: "#D73274",
               color: "white",
               "&:hover": { backgroundColor: "#ea77a3" },

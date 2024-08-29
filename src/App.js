@@ -33,18 +33,26 @@ import Light from "./Light/Light";
 import Sibebar from "./Sibebar";
 import "./Sidebar.css";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Autocomplete,
   Box,
   Button,
+  Drawer,
   FormControl,
   FormControlLabel,
   FormHelperText,
   IconButton,
   InputAdornment,
+  List,
+  ListItem,
+  ListItemText,
   OutlinedInput,
   Switch,
   TextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import AutoCompleteName from "./AutoCompleteName/AutoCompleteName";
 import DrawerForPics from "./Drawer/DrawerForPics";
@@ -52,7 +60,11 @@ import AddIcon from "@mui/icons-material/Add";
 import IOSSwitch from "./Switcher/IOSSwitch";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import RestoreIcon from "@mui/icons-material/Restore";
-
+import ChatIcon from "@mui/icons-material/Chat";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import HistoryIcon from "@mui/icons-material/History";
+import { askChatGPT } from "./api/chatGPT";
+import AIAssistantDrawer from "./components/AIAssistantDrawer";
 // const connectionLineStyle = { stroke: "#000" };
 // const snapGrid = [20, 20];
 // const nodeTypes = {
@@ -445,6 +457,112 @@ const CustomNodeFlow = () => {
 
   const [triggerRenameDialog, setTriggerRenameDialog] = useState(false);
 
+  const [openAIDrawer, setOpenAIDrawer] = useState(false);
+
+  const handleAIAssistant = () => {
+    setOpenAIDrawer(true);
+  };
+
+  const handleCloseAIDrawer = () => {
+    setOpenAIDrawer(false);
+  };
+
+  const onAddNode = useCallback(
+    (type) => {
+      const position = {
+        x: Math.random() * 500,
+        y: Math.random() * 500,
+      };
+      const newNode = {
+        id: `${Date.now()}`,
+        data: {
+          name: `node${nodesV.length + 1}`,
+          color: "grey",
+          image: {
+            url: `${type}`,
+            alt: `${type}`,
+          },
+        },
+        type: "custom",
+        position,
+      };
+      newNode.data = { ...newNode.data, id: `${newNode.id}` };
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [setNodes, nodesV]
+  );
+
+  const handleDeleteNode = useCallback(
+    (nodeId) => {
+      setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+    },
+    [setNodes]
+  );
+
+  const [nodeConnections, setNodeConnections] = useState([]);
+
+  useEffect(() => {
+    const connections = edges.map((edge) => ({
+      source:
+        nodes.find((node) => node.id === edge.source)?.data.name || edge.source,
+      target:
+        nodes.find((node) => node.id === edge.target)?.data.name || edge.target,
+    }));
+    setNodeConnections(connections);
+  }, [nodes, edges]);
+
+  ///
+  const [nodePaths, setNodePaths] = useState([]);
+  useEffect(() => {
+    const connections = edges.map((edge) => ({
+      source:
+        nodes.find((node) => node.id === edge.source)?.data.name || edge.source,
+      target:
+        nodes.find((node) => node.id === edge.target)?.data.name || edge.target,
+    }));
+    setNodeConnections(connections);
+  }, [nodes, edges]);
+
+  const findPaths = useMemo(() => {
+    const paths = [];
+    const visited = new Set();
+
+    const dfs = (nodeId, currentPath) => {
+      visited.add(nodeId);
+      const node = nodes.find((n) => n.id === nodeId);
+      currentPath.push(node.data.name);
+
+      const outgoingEdges = edges.filter((e) => e.source === nodeId);
+      if (outgoingEdges.length === 0) {
+        paths.push([...currentPath]);
+      } else {
+        for (const edge of outgoingEdges) {
+          if (!visited.has(edge.target)) {
+            dfs(edge.target, currentPath);
+          }
+        }
+      }
+
+      currentPath.pop();
+      visited.delete(nodeId);
+    };
+
+    for (const node of nodes) {
+      if (
+        edges.some((e) => e.source === node.id) &&
+        !edges.some((e) => e.target === node.id)
+      ) {
+        dfs(node.id, []);
+      }
+    }
+
+    return paths;
+  }, [nodes, edges]);
+
+  useEffect(() => {
+    setNodePaths(findPaths);
+  }, [findPaths]);
+
   return (
     <>
       <div className="dndflow">
@@ -493,6 +611,11 @@ const CustomNodeFlow = () => {
               <Tooltip title="Restore">
                 <IconButton onClick={onRestore}>
                   <RestoreIcon sx={{ fontSize: "2rem" }} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="AI Assistant">
+                <IconButton onClick={handleAIAssistant}>
+                  <ChatIcon sx={{ fontSize: "2rem" }} />
                 </IconButton>
               </Tooltip>
             </Panel>
@@ -617,6 +740,73 @@ const CustomNodeFlow = () => {
                 </>
               )}
             </Panel>
+            <Panel
+              position="top-center"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <Accordion sx={{ width: "400px" }}>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography>Node Paths ({nodePaths.length})</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <List dense sx={{ maxHeight: 200, overflow: "auto" }}>
+                    {nodePaths.map((path, index) => (
+                      <ListItem key={index}>
+                        <ListItemText
+                          primary={
+                            <span
+                              style={{
+                                display: "flex",
+                                flexWrap: "nowrap",
+                                alignItems: "center",
+                              }}
+                            >
+                              {path.map((nodeName, nodeIndex) => {
+                                const node = nodes.find(
+                                  (n) => n.data.name === nodeName
+                                );
+                                const color = node ? node.data.color : "grey"; // Default to grey if not found
+                                return (
+                                  <span
+                                    key={nodeIndex}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        width: "10px",
+                                        height: "10px",
+                                        borderRadius: "50%",
+                                        backgroundColor: color,
+                                        marginRight: "5px",
+                                      }}
+                                    />
+                                    {nodeName}
+                                    {nodeIndex < path.length - 1 && (
+                                      <span style={{ margin: "0 5px" }}>→</span> // 添加间距
+                                    )}
+                                  </span>
+                                );
+                              })}
+                            </span>
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </AccordionDetails>
+              </Accordion>
+            </Panel>
           </ReactFlow>
         </div>
         {/* <Sibebar
@@ -625,6 +815,13 @@ const CustomNodeFlow = () => {
           setOpenRename={setOpenRename}
         /> */}
       </div>
+      <AIAssistantDrawer
+        open={openAIDrawer}
+        onClose={handleCloseAIDrawer}
+        onAddNode={onAddNode}
+        onDeleteNode={handleDeleteNode}
+        nodes={nodes}
+      />
     </>
   );
 };
