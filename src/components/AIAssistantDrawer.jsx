@@ -19,7 +19,9 @@ import { Hourglass } from "react-loader-spinner";
 import { askChatGPT } from "../api/chatGPT";
 
 const actionMap = {
-  add: "please elaborate this sentence: first you need to click the top right ADD button and drag the desire machine icon and drop it into the white board and then you can set the name of that machine",
+  add: "please elaborate : first you need to click the top right ADD button and drag the desire machine icon and drop it into the white board and then you can set the name of that machine",
+  layout:"please say I will show you the layout",
+  platform:"please elaborate : This is a Iot device management system, it can monitor each factory's each machine's status, and it can cutomize the layout you want, so It is a NO Code platform for user to easy set the machine that is responsible to you and monitor it."
 };
 
 const AIAssistantDrawer = ({
@@ -28,6 +30,7 @@ const AIAssistantDrawer = ({
   onAddNode,
   onDeleteNode,
   nodes,
+  onRestore
 }) => {
   const [aiPrompt, setAiPrompt] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
@@ -58,7 +61,9 @@ const AIAssistantDrawer = ({
     try {
       let response;
       const lowerCasePrompt = aiPrompt.toLowerCase();
+      const isLoacationRelated = lowerCasePrompt.includes("layout");
       const isAddRelated = lowerCasePrompt.includes("add");
+      const isPlatformRelated = lowerCasePrompt.includes("platform")
       const isDeleteRelated =
         lowerCasePrompt.includes("delete") ||
         lowerCasePrompt.includes("remove");
@@ -71,7 +76,25 @@ const AIAssistantDrawer = ({
         response = { content: "Please provide the ID you want to remove." };
         setCurrentResponse(response.content);
         setShowDeleteInput(true);
-      } else {
+      } else if (isLoacationRelated) {    
+        response = await askChatGPT(actionMap["layout"]);
+        setCurrentResponse(response.content);
+        setIsAddNodePrompt(false);
+        setTimeout(() => {
+          onClose();
+          if (lowerCasePrompt.includes("arizona")) {
+            onRestore("example-flow100");
+          } else if (lowerCasePrompt.includes("florida")) {
+            onRestore("example-flow-Florida");
+          } else if (lowerCasePrompt.includes("taipei")) {
+            onRestore("example-flow-Taipei");
+          }
+        }, 1000)
+      } else if (isPlatformRelated) {
+        response = await askChatGPT(actionMap["platform"]);
+        setCurrentResponse(response.content);
+        setIsAddNodePrompt(false);
+      }  else {
         response = await askChatGPT(aiPrompt);
         setCurrentResponse(response.content);
         setIsAddNodePrompt(false);

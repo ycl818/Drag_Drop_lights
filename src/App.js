@@ -147,7 +147,7 @@ const defaultEdgeOptions = {
   },
 };
 
-const flowKey = "example-flow";
+const flowKey = "example-flow-Taipei";
 const CustomNodeFlow = () => {
   const reactFlowWrapper = useRef(null);
 
@@ -167,7 +167,7 @@ const CustomNodeFlow = () => {
     }
   }, [reactFlowInstance]);
 
-  const onRestore = useCallback(() => {
+  const onRestore = useCallback((flowKey="example-flow") => {
     const restoreFlow = async () => {
       const flow = JSON.parse(localStorage.getItem(flowKey));
 
@@ -605,7 +605,7 @@ const CustomNodeFlow = () => {
                 </IconButton>
               </Tooltip>
               <Tooltip title="Restore">
-                <IconButton onClick={onRestore}>
+                <IconButton onClick={() => onRestore("example-flow")}>
                   <RestoreIcon sx={{ fontSize: "2rem" }} />
                 </IconButton>
               </Tooltip>
@@ -828,6 +828,7 @@ const CustomNodeFlow = () => {
         onAddNode={onAddNode}
         onDeleteNode={handleDeleteNode}
         nodes={nodes}
+        onRestore={onRestore}
       />
     </>
   );
