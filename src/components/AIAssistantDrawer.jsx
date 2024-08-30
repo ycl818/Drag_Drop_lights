@@ -21,7 +21,7 @@ import { askChatGPT } from "../api/chatGPT";
 const actionMap = {
   add: "please elaborate : first you need to click the top right ADD button and drag the desire machine icon and drop it into the white board and then you can set the name of that machine",
   layout:"please say I will show you the layout:",
-  platform:"please elaborate : This is a Iot device management system, it can monitor each factory's each machine's status, and it can cutomize the layout you want, so It is a NO Code platform for user to easy set the machine that is responsible to you and monitor it."
+  platform:"please elaborate : This is a Iot device management system, it can monitor each factory's each machine's status, and it can cutomize the layout you want, so It is a LOW Code platform for user to easy set the machine that is responsible to you and monitor it."
 };
 
 const AIAssistantDrawer = ({
@@ -54,6 +54,26 @@ const AIAssistantDrawer = ({
   useEffect(() => {
     localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
   }, [chatHistory]);
+
+  const handleSpeech = () => {
+    console.log("clicked microphone");
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    let recognition = new SpeechRecognition();
+    recognition.onstart = () => {
+      console.log("starting listening, speak in microphone");
+    }
+    recognition.onspeechend = () => {
+      console.log("stopped listening");
+      recognition.stop();
+    }
+    recognition.onresult = (result) => {
+      setAiPrompt(result.results[0][0].transcript);
+      console.log(result.results[0][0].transcript);
+    }
+
+    recognition.start();
+  }
 
   const handleAIPromptSubmit = async (e) => {
     e.preventDefault();
@@ -235,7 +255,7 @@ const AIAssistantDrawer = ({
         role="presentation"
       >
         <Typography variant="h6" gutterBottom>
-          AI Assistant
+          AI Assistant - Mate
         </Typography>
         <Divider />
         <Box sx={{ mb: 2, mt: 2 }}>
@@ -269,7 +289,7 @@ const AIAssistantDrawer = ({
                 colors={["#306cce", "#72a1ed"]}
               />
               <Typography sx={{ mt: 2 }}>
-                AI is generating the answer...
+                Wait! Mate is thinking about your question...
               </Typography>
             </Box>
           ) : showHistory ? (
@@ -440,6 +460,12 @@ const AIAssistantDrawer = ({
         </Box>
 
         <form onSubmit={handleAIPromptSubmit}>
+        <Button
+          mat-button
+          onClick={(e) => handleSpeech()}
+          >
+            Ask Me
+          </Button>
           <TextField
             fullWidth
             label="Ask AI Assistant"
