@@ -302,13 +302,15 @@ const AIAssistantDrawer = ({
                     <Box
                       sx={{
                         display: "flex",
-                        justifyContent: "space-between",
+                        justifyContent: "flex-start",
                         mt: 1,
+                  
                       }}
                     >
                       <Button
                         onClick={() => handleConfirmAddNode(false)}
                         variant="outlined"
+                        sx={{marginRight: "2rem"}}
                       >
                         NO
                       </Button>
@@ -329,6 +331,7 @@ const AIAssistantDrawer = ({
                         display: "flex",
                         justifyContent: "space-between",
                         mt: 1,
+                        padding:"1rem"
                       }}
                     >
                       <Button
@@ -386,6 +389,7 @@ const AIAssistantDrawer = ({
                       <Button
                         onClick={() => handleConfirmDeleteNode(false)}
                         variant="outlined"
+                        sx={{marginRight: "2rem"}}
                       >
                         NO
                       </Button>

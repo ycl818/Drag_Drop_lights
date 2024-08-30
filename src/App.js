@@ -459,13 +459,9 @@ const CustomNodeFlow = () => {
 
   const [openAIDrawer, setOpenAIDrawer] = useState(false);
 
-  const handleAIAssistant = () => {
-    setOpenAIDrawer(true);
-  };
+  
 
-  const handleCloseAIDrawer = () => {
-    setOpenAIDrawer(false);
-  };
+ 
 
   const onAddNode = useCallback(
     (type) => {
@@ -614,7 +610,7 @@ const CustomNodeFlow = () => {
                 </IconButton>
               </Tooltip>
               <Tooltip title="AI Assistant">
-                <IconButton onClick={handleAIAssistant}>
+                <IconButton onClick={()=> setOpenAIDrawer(true)}>
                   <ChatIcon sx={{ fontSize: "2rem" }} />
                 </IconButton>
               </Tooltip>
@@ -748,7 +744,7 @@ const CustomNodeFlow = () => {
                 alignItems: "center",
               }}
             >
-              <Accordion sx={{ width: "400px" }}>
+              <Accordion sx={{ width: "700px" }}>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
@@ -773,7 +769,18 @@ const CustomNodeFlow = () => {
                                 const node = nodes.find(
                                   (n) => n.data.name === nodeName
                                 );
-                                const color = node ? node.data.color : "grey"; // Default to grey if not found
+                                let color = node ? node.data.color : "grey"; // Default to grey if not found
+                                if (color === 'red') {
+                                  color = "#cc3232";
+                                } else if (color === "yellow") {
+                                  color = "#e7b416";
+                                } else if (color === 'green') {
+                                  color = "#2dc937";
+                                } else {
+                                  color = "#grey";
+                                }
+                              
+                          
                                 return (
                                   <span
                                     key={nodeIndex}
@@ -817,7 +824,7 @@ const CustomNodeFlow = () => {
       </div>
       <AIAssistantDrawer
         open={openAIDrawer}
-        onClose={handleCloseAIDrawer}
+        onClose={() => setOpenAIDrawer(false)}
         onAddNode={onAddNode}
         onDeleteNode={handleDeleteNode}
         nodes={nodes}
