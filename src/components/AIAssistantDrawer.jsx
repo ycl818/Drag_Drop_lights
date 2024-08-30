@@ -20,7 +20,7 @@ import { askChatGPT } from "../api/chatGPT";
 
 const actionMap = {
   add: "please elaborate : first you need to click the top right ADD button and drag the desire machine icon and drop it into the white board and then you can set the name of that machine",
-  layout:"please say I will show you the layout",
+  layout:"please say I will show you the layout:",
   platform:"please elaborate : This is a Iot device management system, it can monitor each factory's each machine's status, and it can cutomize the layout you want, so It is a NO Code platform for user to easy set the machine that is responsible to you and monitor it."
 };
 
@@ -78,7 +78,16 @@ const AIAssistantDrawer = ({
         setShowDeleteInput(true);
       } else if (isLoacationRelated) {    
         response = await askChatGPT(actionMap["layout"]);
-        setCurrentResponse(response.content);
+        let additionalString = "";
+        if (lowerCasePrompt.includes("arizona")) {
+          additionalString= "Arizona";
+        } else if (lowerCasePrompt.includes("florida")) {
+          additionalString= "Florida";
+        } else if (lowerCasePrompt.includes("taipei")) {
+          additionalString = "Taipei"
+        } 
+        setCurrentResponse(response.content + additionalString);
+    
         setIsAddNodePrompt(false);
         setTimeout(() => {
           onClose();

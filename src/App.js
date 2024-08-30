@@ -147,7 +147,7 @@ const defaultEdgeOptions = {
   },
 };
 
-const flowKey = "example-flow-Taipei";
+const flowKey = "example-flow";
 const CustomNodeFlow = () => {
   const reactFlowWrapper = useRef(null);
 
@@ -383,7 +383,7 @@ const CustomNodeFlow = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   // switcher
-  const [checked, setChecked] = React.useState(true);
+  const [checked, setChecked] = React.useState(false);
 
   const handleChange = useCallback((event) => {
     setChecked(event.target.checked);
